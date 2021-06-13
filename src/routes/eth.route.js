@@ -133,11 +133,13 @@ router.post('/allowances', async (req, res) => {
   });
 
   const approvals = {}
+  const decimals_res = {}
   try {
     Promise.all(
       Object.keys(tokenContractList).map(async (symbol, index) => {
         const address = tokenContractList[symbol].address
         const decimals = tokenContractList[symbol].decimals
+        decimals_res[symbol] = decimals
         approvals[symbol] = await eth.getERC20Allowance(wallet, spender, address, decimals)
       }
     )).then(() => {
@@ -148,6 +150,7 @@ router.post('/allowances', async (req, res) => {
         latency: latency(initTime, Date.now()),
         spender: spender,
         approvals: approvals,
+        decimals: decimals_res,
       })
     }
     )
