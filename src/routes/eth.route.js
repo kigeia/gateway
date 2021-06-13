@@ -12,6 +12,7 @@ const eth = new Ethereum(process.env.ETHEREUM_CHAIN)
 const spenders = {
   balancer: process.env.EXCHANGE_PROXY,
   pangolin: process.env.PANGOLIN_ROUTER,
+  complusava: process.env.COMPLUSAVA_ROUTER,
   uniswap: process.env.UNISWAP_ROUTER
 }
 const fees = new Fees()

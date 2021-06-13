@@ -20,6 +20,7 @@ export default class Ethereum {
     this.spenders = {
       balancer: process.env.EXCHANGE_PROXY,
       pangolin: process.env.PANGOLIN_ROUTER,
+      complusava: process.env.COMPLUSAVA_ROUTER,
       uniswap: process.env.UNISWAP_ROUTER
     }
     // update token list
