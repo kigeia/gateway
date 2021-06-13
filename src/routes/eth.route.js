@@ -11,6 +11,7 @@ const router = express.Router()
 const eth = new Ethereum(process.env.ETHEREUM_CHAIN)
 const spenders = {
   balancer: process.env.EXCHANGE_PROXY,
+  pangolin: process.env.PANGOLIN_ROUTER,
   uniswap: process.env.UNISWAP_ROUTER
 }
 const fees = new Fees()
@@ -61,7 +62,7 @@ router.post('/balances', async (req, res) => {
   });
 
   const balances = {}
-  balances.ETH = await eth.getETHBalance(wallet, privateKey)
+  balances[process.env.FEE_TOKEN] = await eth.getETHBalance(wallet, privateKey)
   try {
     Promise.all(
       Object.keys(tokenContractList).map(async (symbol, index) => {

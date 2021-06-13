@@ -19,6 +19,7 @@ export default class Ethereum {
     this.network = network
     this.spenders = {
       balancer: process.env.EXCHANGE_PROXY,
+      pangolin: process.env.PANGOLIN_ROUTER,
       uniswap: process.env.UNISWAP_ROUTER
     }
     // update token list
@@ -139,10 +140,23 @@ export default class Ethereum {
           console.log('eth - Error: ', errMessage)
         }
         if (this.erc20TokenList === undefined || this.erc20TokenList === null || this.erc20TokenList === {}) {
-          const response = await axios.get(tokenListSource)
-          if (response.status === 200 && response.data) {
-            this.erc20TokenList = response.data
-          }
+            if (this.erc20TokenListURL.includes(",")) {
+                var tokenSources = this.erc20TokenListURL.split(",")
+            } else {
+                var tokenSources = [this.erc20TokenListURL]
+            }
+            for (const tokenListSource of tokenSources) {
+                const response = await axios.get(tokenListSource)
+                if (response.status === 200 && response.data) {
+                    if (this.erc20TokenList === undefined || this.erc20TokenList === null) {
+                        this.erc20TokenList = response.data
+                    } else {
+                        this.erc20TokenList.tokens = this.erc20TokenList.tokens.concat(response.data.tokens)
+                    }
+                }
+            }
+            let set = new Set(this.erc20TokenList.tokens)
+            this.erc20TokenList.tokens = [...set]
         }
       } else {
         throw Error(`Invalid network ${this.network}`)
