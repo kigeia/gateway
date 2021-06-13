@@ -12,7 +12,21 @@ require('dotenv').config()
 const debug = require('debug')('router')
 const router = express.Router()
 const eth = new Ethereum(process.env.ETHEREUM_CHAIN)
-const uniswap = new Uniswap(process.env.ETHEREUM_CHAIN)
+var uni = require('@uniswap/sdk')
+var chainID
+switch (process.env.ETHEREUM_CHAIN) {
+  case 'mainnet':
+    chainID = uni.ChainId.MAINNET;
+    break;
+  case 'kovan':
+    chainID = uni.ChainId.KOVAN;
+    break;
+  default:
+    const err = `Invalid network ${network}`
+    logger.error(err)
+    throw Error(err)
+}
+const uniswap = new Uniswap(chainID, uni, process.env.UNISWAP_ROUTER)
 uniswap.generate_tokens()
 setTimeout(uniswap.update_pairs.bind(uniswap), 2000)
 const fees = new Fees()

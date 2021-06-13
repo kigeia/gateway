@@ -2,23 +2,21 @@ import { logger } from './logger';
 
 const debug = require('debug')('router')
 const math =  require('mathjs')
-const uni = require('@uniswap/sdk')
 const ethers = require('ethers')
 const proxyArtifact = require('../static/uniswap_v2_router_abi.json')
 const routeTokens = require('../static/uniswap_route_tokens.json')
 
 // constants
-const ROUTER = process.env.UNISWAP_ROUTER
 const GAS_LIMIT = process.env.UNISWAP_GAS_LIMIT || 150688;
 const TTL = process.env.UNISWAP_TTL || 300;
 const UPDATE_PERIOD = process.env.UNISWAP_UPDATE_PERIOD || 300000;  // stop updating pair after 5 minutes from last request
 
 export default class Uniswap {
-  constructor (network = 'mainnet') {
+  constructor (chainID, uni, router) {
     this.providerUrl = process.env.ETHEREUM_RPC_URL
     this.network = process.env.ETHEREUM_CHAIN
     this.provider = new ethers.providers.JsonRpcProvider(this.providerUrl)
-    this.router = ROUTER;
+    this.router = router;
     this.slippage = math.fraction(process.env.UNISWAP_ALLOWED_SLIPPAGE)
     this.allowedSlippage = new uni.Percent(this.slippage.n, (this.slippage.d * 100))
     this.pairsCacheTime = process.env.UNISWAP_PAIRS_CACHE_TIME
@@ -30,27 +28,17 @@ export default class Uniswap {
     this.pairs = []
     this.tokenSwapList = {}
     this.cachedRoutes = {}
-
-    switch (network) {
-      case 'mainnet':
-        this.chainID = uni.ChainId.MAINNET;
-        break;
-      case 'kovan':
-        this.chainID = uni.ChainId.KOVAN;
-        break;
-      default:
-        const err = `Invalid network ${network}`
-        logger.error(err)
-        throw Error(err)
-    }
+    this.uni = uni
+    this.chainID = chainID
   }
 
   async fetch_route(tIn, tOut){
       var route, pair, pairOne, pairTwo
 
       try {
-        pair = await uni.Fetcher.fetchPairData(tIn, tOut);
-        route = new uni.Route([pair], tIn, tOut);
+        var address = this.uni.Pair.getAddress(tIn, tOut, this.chainID);
+        pair = await this.uni.Fetcher.fetchPairData(tIn, tOut, this.provider);
+        route = new this.uni.Route([pair], tIn, tOut);
       }
       catch(err) {
         logger.error(err);
@@ -61,14 +49,14 @@ export default class Uniswap {
 
   generate_tokens(){
     for (let token of routeTokens[this.network]){
-      this.tokenList[token["address"]] = new uni.Token(this.chainID, token["address"], token["decimals"], token["symbol"], token["name"]);
+      this.tokenList[token["address"]] = new this.uni.Token(this.chainID, token["address"], token["decimals"], token["symbol"], token["name"]);
     }
   }
 
   async extend_update_pairs(tokens=[]){
       for (let token of tokens){
         if (!this.tokenList.hasOwnProperty(token)){
-          this.tokenList[token] = await uni.Fetcher.fetchTokenData(this.chainID, token);
+          this.tokenList[token] = await this.uni.Fetcher.fetchTokenData(this.chainID, token, this.provider);
         }
         this.tokenSwapList[token] = Date.now() + this.expireTokenPairUpdate;
       }
@@ -106,7 +94,7 @@ export default class Uniswap {
             let pairString = this.tokenList[tokens[firstToken]].address + '-' + this.tokenList[tokens[secondToken]].address;
             if (!this.zeroReservePairs.hasOwnProperty(pairString)){
               pairs.push(pairString);
-              pairAddressRequests.push(uni.Fetcher.fetchPairData(this.tokenList[tokens[firstToken]], this.tokenList[tokens[secondToken]]));
+              pairAddressRequests.push(this.uni.Fetcher.fetchPairData(this.tokenList[tokens[firstToken]], this.tokenList[tokens[secondToken]]));
             }
           }
           catch(err) {
@@ -127,10 +115,10 @@ export default class Uniswap {
     await this.extend_update_pairs([tokenIn, tokenOut]);
     const tIn = this.tokenList[tokenIn];
     const tOut = this.tokenList[tokenOut];
-    const tokenAmountIn = new uni.TokenAmount(tIn, ethers.utils.parseUnits(tokenInAmount, tIn.decimals));
+    const tokenAmountIn = new this.uni.TokenAmount(tIn, ethers.utils.parseUnits(tokenInAmount, tIn.decimals));
     if (this.pairs.length === 0){
       const route = await this.fetch_route(tIn, tOut);
-      const trade = uni.Trade.exactIn(route, tokenAmountIn);
+      const trade = this.uni.Trade.exactIn(route, tokenAmountIn);
       if ( trade !== undefined ){
         const expectedAmount = trade.minimumAmountOut(this.allowedSlippage);
         this.cachedRoutes[tIn.symbol + tOut.Symbol] = trade;
@@ -138,7 +126,7 @@ export default class Uniswap {
       }
       return "Can't find route to swap, kindly update "
     }
-    const trade = uni.Trade.bestTradeExactIn(this.pairs, tokenAmountIn, this.tokenList[tokenOut], { maxHops: 5 })[0];
+    const trade = this.uni.Trade.bestTradeExactIn(this.pairs, tokenAmountIn, this.tokenList[tokenOut], { maxHops: 5 })[0];
     if (trade === undefined){trade = this.cachedRoutes[tIn.symbol + tOut.Symbol];}
     else{this.cachedRoutes[tIn.symbol + tOut.Symbol] = trade;}
     const expectedAmount = trade.minimumAmountOut(this.allowedSlippage);
@@ -149,10 +137,10 @@ export default class Uniswap {
     await this.extend_update_pairs([tokenIn, tokenOut]);
     const tOut = this.tokenList[tokenOut];
     const tIn = this.tokenList[tokenIn];
-    const tokenAmountOut = new uni.TokenAmount(tOut, ethers.utils.parseUnits(tokenOutAmount, tOut.decimals));
+    const tokenAmountOut = new this.uni.TokenAmount(tOut, ethers.utils.parseUnits(tokenOutAmount, tOut.decimals));
     if (this.pairs.length === 0){
       const route = await this.fetch_route(tIn, tOut);
-      const trade = uni.Trade.exactOut(route, tokenAmountOut);
+      const trade = this.uni.Trade.exactOut(route, tokenAmountOut);
       if ( trade !== undefined ){
         const expectedAmount = trade.maximumAmountIn(this.allowedSlippage);
         this.cachedRoutes[tIn.symbol + tOut.Symbol] = trade;
@@ -160,7 +148,7 @@ export default class Uniswap {
       }
       return
     }
-    const trade = uni.Trade.bestTradeExactOut(this.pairs, this.tokenList[tokenIn], tokenAmountOut, { maxHops: 5 })[0];
+    const trade = this.uni.Trade.bestTradeExactOut(this.pairs, this.tokenList[tokenIn], tokenAmountOut, { maxHops: 5 })[0];
     if (trade === undefined){trade = this.cachedRoutes[tIn.symbol + tOut.Symbol];}
     else{this.cachedRoutes[tIn.symbol + tOut.Symbol] = trade;}
     const expectedAmount = trade.maximumAmountIn(this.allowedSlippage);
@@ -168,7 +156,7 @@ export default class Uniswap {
   }
 
   async swapExactIn (wallet, trade, tokenAddress, gasPrice) {
-    const result = uni.Router.swapCallParameters(
+    const result = this.uni.Router.swapCallParameters(
       trade,
       {
         ttl: TTL,
@@ -192,7 +180,7 @@ export default class Uniswap {
   }
 
   async swapExactOut (wallet, trade, tokenAddress, gasPrice) {
-    const result = uni.Router.swapCallParameters(
+    const result = this.uni.Router.swapCallParameters(
       trade,
       {
         ttl: TTL,
