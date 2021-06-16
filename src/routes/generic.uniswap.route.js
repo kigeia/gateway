@@ -26,15 +26,17 @@ const swapLessThanMaxPriceError = 'Price too low'
 const estimateGasLimit = () => {
   return uniswap.gasLimit
 }
-const wallets = {}
+if (!('wallets' in global)) {
+    global.wallets = {}
+}
 function getWallet(privateKey, provider) {
-    if (!(privateKey+provider in wallets)) {
-        var wallet = new ethers.Wallet(privateKey, provider)
-        var managedSigner = new NonceManager(wallet);
-        managedSigner.address = wallet.address
-        wallets[privateKey+provider] = managedSigner;
+    if (!(privateKey in global.wallets)) {
+        let wallet = new ethers.Wallet(privateKey, provider)
+        let managedSigner = new NonceManager(wallet);
+        managedSigner.address = wallet.address;
+        global.wallets[privateKey] = managedSigner;
     }
-    return wallets[privateKey+provider]
+    return global.wallets[privateKey]
 }
 
 const getErrorMessage = (err) => {
