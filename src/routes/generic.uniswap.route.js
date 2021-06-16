@@ -27,12 +27,14 @@ const estimateGasLimit = () => {
   return uniswap.gasLimit
 }
 const wallets = {}
-function getWallet(privatekey, provider) {
-    if (!(privatekey+provider in wallets)) {
-        const managedSigner = new NonceManager(new ethers.Wallet(privateKey, uniswap.provider));
-        wallets[privatekey+provider] = managedSigner
+function getWallet(privateKey, provider) {
+    if (!(privateKey+provider in wallets)) {
+        var wallet = new ethers.Wallet(privateKey, provider)
+        var managedSigner = new NonceManager(wallet);
+        managedSigner.address = wallet.address
+        wallets[privateKey+provider] = managedSigner;
     }
-    return wallets[privatekey+provider]
+    return wallets[privateKey+provider]
 }
 
 const getErrorMessage = (err) => {
@@ -160,7 +162,7 @@ router.post('/trade', async (req, res) => {
   // params: privateKey (required), base (required), quote (required), amount (required), maxPrice (required), gasPrice (required)
   const paramData = getParamData(req.body)
   const privateKey = paramData.privateKey
-  const wallet = getWallet(privateKey, uniswap.provider)
+  var wallet = getWallet(privateKey, uniswap.provider)
   const amount = paramData.amount
 
   const baseTokenContractInfo = eth.getERC20TokenAddresses(paramData.base)
