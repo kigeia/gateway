@@ -19,8 +19,9 @@ export default class Ethereum {
     this.network = network
     this.spenders = {
       balancer: process.env.EXCHANGE_PROXY,
-      pangolin: process.env.PANGOLIN_ROUTER,
-      complusava: process.env.COMPLUSAVA_ROUTER,
+      pangolin: '0xe54ca86531e17ef3616d22ca28b0d458b6c89106',
+      complusava: '0x78c18E6BE20df11f1f41b9635F3A18B8AD82dDD1',
+      olive: '0x0c45FB63001b56a21e29c7dcc1727bfDA273a368',
       uniswap: process.env.UNISWAP_ROUTER
     }
     // update token list
