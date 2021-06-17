@@ -9,12 +9,6 @@ import { logger } from '../services/logger';
 const debug = require('debug')('router')
 const router = express.Router()
 const eth = new Ethereum(process.env.ETHEREUM_CHAIN)
-const spenders = {
-  balancer: process.env.EXCHANGE_PROXY,
-  pangolin: process.env.PANGOLIN_ROUTER,
-  complusava: process.env.COMPLUSAVA_ROUTER,
-  uniswap: process.env.UNISWAP_ROUTER
-}
 const fees = new Fees()
 
 router.post('/', async (req, res) => {
@@ -109,7 +103,7 @@ router.post('/allowances', async (req, res) => {
   const initTime = Date.now()
   const paramData = getParamData(req.body)
   const privateKey = paramData.privateKey
-  const spender = spenders[paramData.connector]
+  const spender = eth.spenders[paramData.connector]
   let wallet
   try {
     wallet = new ethers.Wallet(privateKey, eth.provider)
@@ -235,7 +229,7 @@ router.post('/allowances-2', async (req, res) => {
   const initTime = Date.now()
   const paramData = getParamData(req.body)
   const privateKey = paramData.privateKey
-  const spender = spenders[paramData.connector]
+  const spender = eth.spenders[paramData.connector]
   let wallet
   try {
     wallet = new ethers.Wallet(privateKey, eth.provider)
@@ -296,7 +290,7 @@ router.post('/approve', async (req, res) => {
   const initTime = Date.now()
   const paramData = getParamData(req.body)
   const privateKey = paramData.privateKey
-  const spender = spenders[paramData.connector]
+  const spender = eth.spenders[paramData.connector]
   let wallet
   try {
     wallet = new ethers.Wallet(privateKey, eth.provider)
