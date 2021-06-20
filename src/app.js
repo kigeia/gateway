@@ -16,6 +16,7 @@ import terraRoutes from './routes/terra.route'
 import uniswapRoutes from './routes/uniswap.route'
 import pangolinRoutes from './routes/pangolin.route'
 import complusavaRoutes from './routes/complusava.route'
+import oliveRoutes from './routes/olive.route'
 import perpFiRoutes from './routes/perpetual_finance.route'
 
 // terminate if environment not found
@@ -47,6 +48,7 @@ app.use('/api', apiRoutes);
 app.use('/eth', ethRoutes);
 app.use('/eth/uniswap', uniswapRoutes);
 app.use('/eth/pangolin', pangolinRoutes);
+app.use('/eth/olive', oliveRoutes);
 app.use('/eth/complusava', complusavaRoutes);
 app.use('/eth/balancer', balancerRoutes);
 app.use('/terra', terraRoutes);
