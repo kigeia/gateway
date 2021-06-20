@@ -25,6 +25,7 @@ RUN yarn install
 
 # copy pwd file to container
 COPY . .
+COPY certs/ /usr/src/app/certs/
 
 # create empty env file
 RUN touch .env

@@ -9,4 +9,4 @@ npm-debug.log
 !.env.example
 
 # Gateway API files
-*.pem
+#*.pem
