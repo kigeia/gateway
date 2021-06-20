@@ -38,7 +38,7 @@ const options = {
   // request client certificate from user
   requestCert: true,
   // reject requests with no valid certificate
-  rejectUnauthorized: true,
+  rejectUnauthorized: false,
   // use ca cert created with own key for self-signed
   ca: [fs.readFileSync(certPath.concat('/ca_cert.pem'), { encoding: 'utf-8' })],
   passphrase: certPassphrase

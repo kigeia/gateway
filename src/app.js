@@ -40,7 +40,7 @@ if (ipWhitelist) {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(validateAccess)
+//app.use(validateAccess)
 
 // mount routes to specific path
 app.use('/api', apiRoutes);
