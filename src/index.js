@@ -71,8 +71,8 @@ const onError = error => {
 const onListening = () => {
   const addr = server.address()
   const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port
-  console.log('listening on ' + bind)
-  logger.debug('listening on ' + bind)
+  console.log('listening on addr : ' + JSON.stringify(addr))
+  logger.debug('listening on addr : ' + JSON.stringify(addr))
 }
 
 // listen on provided port, on all network interfaces.
@@ -88,4 +88,4 @@ const serverConfig = {
 }
 
 logger.info(JSON.stringify(serverConfig))
-console.log(serverConfig)
+console.log(JSON.stringify(serverConfig))
