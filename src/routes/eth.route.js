@@ -6,7 +6,6 @@ import Ethereum from '../services/eth';
 import Fees from '../services/fees';
 import { logger } from '../services/logger';
 
-const debug = require('debug')('router')
 const router = express.Router()
 const eth = new Ethereum(process.env.ETHEREUM_CHAIN)
 const fees = new Fees()
@@ -68,11 +67,9 @@ router.post('/balances', async (req, res) => {
           } else {
             const err = `Token contract info for ${symbol} not found`
             logger.error('Token info not found', { message: err })
-            debug(err)
           }
         }
       )).then(() => {
-        console.log('eth.route - Get Account Balance', { message: JSON.stringify(tokenList) })
         res.status(200).json({
         network: eth.network,
         timestamp: initTime,
@@ -322,7 +319,6 @@ router.post('/approve', async (req, res) => {
   try {
     // call approve function
     const approval = await eth.approveERC20(wallet, spender, tokenAddress, amount, gasPrice)
-    // console.log('eth.route - Approving allowance', { message: approval })
     // submit response
     res.status(200).json({
       network: eth.network,

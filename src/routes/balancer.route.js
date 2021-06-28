@@ -9,7 +9,6 @@ import Balancer from '../services/balancer';
 import Fees from '../services/fees';
 import { logger } from '../services/logger';
 
-const debug = require('debug')('router')
 const router = express.Router()
 const eth = new Ethereum(process.env.ETHEREUM_CHAIN)
 const balancer = new Balancer(process.env.ETHEREUM_CHAIN)
@@ -192,7 +191,7 @@ router.post('/price', async (req, res) => {
         gasCost: gasCost,
         swaps: swaps,
       }
-      debug(`Price ${side} ${baseTokenContractInfo.symbol}-${quoteTokenContractInfo.symbol} | amount:${amount} (rate:${tradePrice}) - gasPrice:${gasPrice} gasLimit:${gasLimit} estimated fee:${gasCost} ETH`)
+      logger.debug(`Price ${side} ${baseTokenContractInfo.symbol}-${quoteTokenContractInfo.symbol} | amount:${amount} (rate:${tradePrice}) - gasPrice:${gasPrice} gasLimit:${gasLimit} estimated fee:${gasCost} ETH`)
       res.status(200).json(result)
     } else { // no pool available
       res.status(200).json({
@@ -304,12 +303,11 @@ router.post('/trade', async (req, res) => {
           error: swapMoreThanMaxPriceError,
           message: `Swap price ${price} exceeds limitPrice ${limitPrice}`
         })
-        debug(`Swap price ${price} exceeds limitPrice ${limitPrice}`)
+        logger.debug(`Swap price ${price} exceeds limitPrice ${limitPrice}`)
       }
     } else {
       // sell
       const minAmountOut = limitPrice / amount *  baseDenomMultiplier
-      debug('minAmountOut', minAmountOut)
       const price = expectedAmount / amount  * baseDenomMultiplier / quoteDenomMultiplier
       logger.info(`Price: ${price.toString()}`)
       if (!limitPrice || price >= limitPrice) {
@@ -343,7 +341,7 @@ router.post('/trade', async (req, res) => {
           error: swapLessThanMaxPriceError,
           message: `Swap price ${price} lower than limitPrice ${limitPrice}`
         })
-        debug(`Swap price ${price} lower than limitPrice ${limitPrice}`)
+        logger.debug(`Swap price ${price} lower than limitPrice ${limitPrice}`)
       }
     }
   } catch (err) {

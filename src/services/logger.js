@@ -30,14 +30,18 @@ const config = {
     datePattern: 'YYYY-MM-DD',
     handleExceptions: true,
     handleRejections: true
+  },
+  console: {
+    level: 'debug',
   }
 }
 
 const allLogsFileTransport = new winston.transports.DailyRotateFile(config.file)
+const allLogsConsoleTransport = new winston.transports.Console(config.console)
 
 const options = {
   format: logFormat,
-  transports: [allLogsFileTransport],
+  transports: [allLogsFileTransport, allLogsConsoleTransport],
   exitOnError: false,
 }
 

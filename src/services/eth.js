@@ -1,7 +1,6 @@
 import { logger } from './logger';
 import axios from 'axios'
 
-const debug = require('debug')('router')
 require('dotenv').config()
 const fs = require('fs');
 const ethers = require('ethers')
@@ -140,7 +139,6 @@ export default class Ethereum {
         if (tokenListSource === undefined || tokenListSource === null) {
           const errMessage = 'Token List source not found'
           logger.error('ERC20 Token List Error', { message: errMessage})
-          console.log('eth - Error: ', errMessage)
         }
         if (this.erc20TokenList === undefined || this.erc20TokenList === null || this.erc20TokenList === {}) {
             if (this.erc20TokenListURL.includes(",")) {
@@ -164,9 +162,8 @@ export default class Ethereum {
       } else {
         throw Error(`Invalid network ${this.network}`)
       }
-      console.log('get ERC20 Token List', this.network, 'source', tokenListSource)
+      logger.debug('get ERC20 Token List', this.network, 'source', tokenListSource)
     } catch (err) {
-      console.log(err);
       logger.error(err)
       let reason
       err.reason ? reason = err.reason : reason = 'error ERC 20 Token List'

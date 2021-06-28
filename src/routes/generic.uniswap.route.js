@@ -13,7 +13,6 @@ require('dotenv').config()
 
 function getRouter(uniswap) {
 
-const debug = require('debug')('router')
 const router = express.Router()
 const eth = new Ethereum(process.env.ETHEREUM_CHAIN)
 uniswap.generate_tokens()
@@ -202,7 +201,6 @@ router.post('/trade', async (req, res) => {
 
     if (side === 'BUY') {
       const price = trade.executionPrice.invert().toSignificant(8)
-      logger.info(`uniswap.route - Price: ${price.toString()}`)
       if (!limitPrice || price <= limitPrice) {
         // pass swaps to exchange-proxy to complete trade
         const tx = await uniswap.swapExactOut(
@@ -236,7 +234,6 @@ router.post('/trade', async (req, res) => {
     } else {
       // sell
       const price = trade.executionPrice.toSignificant(8)
-      logger.info(`Price: ${price.toString()}`)
       if (!limitPrice || price >= limitPrice) {
         // pass swaps to exchange-proxy to complete trade
         const tx = await uniswap.swapExactIn(
@@ -345,7 +342,7 @@ router.post('/price', async (req, res) => {
         gasCost: gasCost,
         trade: trade,
       }
-      debug(`Price ${side} ${baseTokenContractInfo.symbol}-${quoteTokenContractInfo.symbol} | amount:${amount} (rate:${tradePrice}) - gasPrice:${gasPrice} gasLimit:${gasLimit} estimated fee:${gasCost} ETH`)
+      logger.debug(`Price ${side} ${baseTokenContractInfo.symbol}-${quoteTokenContractInfo.symbol} | amount:${amount} (rate:${tradePrice}) - gasPrice:${gasPrice} gasLimit:${gasLimit} estimated fee:${gasCost} ETH`)
       res.status(200).json(result)
     } else { // no pool available
       res.status(200).json({

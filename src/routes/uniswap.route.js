@@ -9,7 +9,6 @@ import Fees from '../services/fees';
 
 require('dotenv').config()
 
-const debug = require('debug')('router')
 const router = express.Router()
 const eth = new Ethereum(process.env.ETHEREUM_CHAIN)
 var uni = require('@uniswap/sdk')
@@ -344,7 +343,7 @@ router.post('/price', async (req, res) => {
         gasCost: gasCost,
         trade: trade,
       }
-      debug(`Price ${side} ${baseTokenContractInfo.symbol}-${quoteTokenContractInfo.symbol} | amount:${amount} (rate:${tradePrice}) - gasPrice:${gasPrice} gasLimit:${gasLimit} estimated fee:${gasCost} ETH`)
+      logger.debug(`Price ${side} ${baseTokenContractInfo.symbol}-${quoteTokenContractInfo.symbol} | amount:${amount} (rate:${tradePrice}) - gasPrice:${gasPrice} gasLimit:${gasLimit} estimated fee:${gasCost} ETH`)
       res.status(200).json(result)
     } else { // no pool available
       res.status(200).json({
