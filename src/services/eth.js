@@ -16,12 +16,13 @@ export default class Ethereum {
     this.provider = new ethers.providers.JsonRpcProvider(providerUrl)
     this.erc20TokenListURL = process.env.ETHEREUM_TOKEN_LIST_URL
     this.network = network
-    this.spenders = {
+    this.spenders = {//router
       balancer: process.env.EXCHANGE_PROXY,
       pangolin: '0xe54ca86531e17ef3616d22ca28b0d458b6c89106',
       complusava: '0x78c18E6BE20df11f1f41b9635F3A18B8AD82dDD1',
       olive: '0x0c45FB63001b56a21e29c7dcc1727bfDA273a368',
       lydia: '0xe0C1bb6DF4851feEEdc3E14Bd509FEAF428f7655',
+      quickswap: '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff',
       uniswap: process.env.UNISWAP_ROUTER
     }
     // update token list
