@@ -309,6 +309,9 @@ router.post('/approve', async (req, res) => {
   let amount
   paramData.amount  ? amount = ethers.utils.parseUnits(paramData.amount, decimals)
                     : amount = ethers.utils.parseUnits('1000000000', decimals) // approve for 1 billion units if no amount specified
+  if (token = 'SPORE') {
+      amount = ethers.utils.parseUnits('100000000000000', decimals)
+  }
   let gasPrice
   if (paramData.gasPrice) {
     gasPrice = parseFloat(paramData.gasPrice)
