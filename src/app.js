@@ -18,6 +18,7 @@ import pangolinRoutes from './routes/pangolin.route'
 import complusavaRoutes from './routes/complusava.route'
 import oliveRoutes from './routes/olive.route'
 import perpFiRoutes from './routes/perpetual_finance.route'
+import quickswapRoutes from './routes/quickswap.route'
 
 // terminate if environment not found
 const result = dotenv.config();
@@ -50,6 +51,7 @@ app.use('/eth/uniswap', uniswapRoutes);
 app.use('/eth/pangolin', pangolinRoutes);
 app.use('/eth/olive', oliveRoutes);
 app.use('/eth/complusava', complusavaRoutes);
+app.use('/eth/quickswap', quickswapRoutes);
 app.use('/eth/balancer', balancerRoutes);
 app.use('/terra', terraRoutes);
 app.use('/perpfi', perpFiRoutes);
