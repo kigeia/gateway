@@ -66,7 +66,7 @@ router.post('/balances', async (req, res) => {
             balances[symbol] = await eth.getERC20Balance(wallet, address, decimals)
           } else {
             const err = `Token contract info for ${symbol} not found`
-            logger.error('Token info not found', { message: err })
+            logger.error('eth.route /balances Token info not found', { message: err })
           }
         }
       )).then(() => {
@@ -116,7 +116,7 @@ router.post('/allowances', async (req, res) => {
   }
 
   // populate token contract info using token symbol list
-  const tokenContractList = []
+  const tokenContractList = {}
   const tokenList = JSON.parse(paramData.tokenList)
   tokenList.forEach(symbol => {
     const tokenContractInfo = eth.getERC20TokenAddresses(symbol)
@@ -309,7 +309,7 @@ router.post('/approve', async (req, res) => {
   let amount
   paramData.amount  ? amount = ethers.utils.parseUnits(paramData.amount, decimals)
                     : amount = ethers.utils.parseUnits('1000000000', decimals) // approve for 1 billion units if no amount specified
-  if (token = 'SPORE') {
+  if (token == 'SPORE') {
       amount = ethers.utils.parseUnits('100000000000000', decimals)
   }
   let gasPrice
@@ -329,7 +329,7 @@ router.post('/approve', async (req, res) => {
       latency: latency(initTime, Date.now()),
       tokenAddress: tokenAddress,
       spender: spender,
-      amount: amount / 1e18.toString(),
+      amount: amount / ethers.utils.parseUnits('1', decimals).toString(),
       approval: approval
     })
   } catch (err) {
